@@ -1,12 +1,6 @@
 # Fred
 The goal of this project was to create a more complex version of the lenny program with 5 dialog paths and randomized envisioned.
  Only 3 paths are working but the scaffolding for 4 and 5 exsisted in the code and could easily be finished.
- 
- [Lenny]
-exten => talk,1,Set(i=${IF($["0${i}"="016"]?7:$[0${i}+1])})
-same => n,ExecIf($[${i}=1]?MixMonitor(${UNIQUEID}.wav))
-same => n,Playback(Lenny/Lenny${i})
-same => n,BackgroundDetect(Lenny/backgroundnoise,1500)
 
 I hit an unexpected wall when I discovered that the dialplan does not allow you to create functions.
 What I had envisioned being a short 50 line program turned into this 200+ line linear behemoth and this is only a rough draft.

@@ -1,0 +1,241 @@
+ ;--
+ 
+ The goal of this project was to create a more complex version of the lenny program with 5 dialog paths and randomized envisioned.
+ Only 3 paths are working but the scaffolding for 4 and 5 exsisted in the code and could easily be finished.
+ 
+ [Lenny]
+exten => talk,1,Set(i=${IF($["0${i}"="016"]?7:$[0${i}+1])})
+same => n,ExecIf($[${i}=1]?MixMonitor(${UNIQUEID}.wav))
+same => n,Playback(Lenny/Lenny${i})
+same => n,BackgroundDetect(Lenny/backgroundnoise,1500)
+
+I hit an unexpected wall when I discovered that the dialplan does not allow you to create functions.
+What I had invisioned being a short 50 line program turned into this 200+ line linear behemoth and this is only a rough draft.
+
+ ;--
+[Fred]
+exten => foo,1,Answer
+;same => n,MixMonitor(${UNIQUEID}.wav) ;records the call
+;same => n,Set(i=1) ; the counter for the entire program
+;same => n,Set(j=${RAND(1,3)}) ;decides what module will be used
+;same => n,Set(k=${j}) ;used to make sure the same module is not played twice
+same => n,Set(greetone=${RAND(1,4)}) ;sets a random greeting from the greeting file.
+same => n,Set(greettwo=${RAND(1,8)})
+same => n,Set(greetthree=${RAND(1,8)})
+same => n,Playback(Fred/Greeting1/fred${greetone}) ;uses the random number to play the greeting
+same => n,Playback(Fred/Greeting2/fred${greettwo})
+same => n,Playback(Fred/Greeting3/fred${greetthree})
+;exten => bar,1,NoOp()
+;same => n, Set(test=8)
+;This section is a pseudo function used to keep track of what modules have played and when to end the program
+same => n(top),Set(totalcheck=0) ;this is the 'top' of the program
+same => n,Set(z=0)
+same => n,Set(ARRAY(check1,check2,check3,check4,check5)=0,0,0,0,0) ;initates the check values at 0, the value changes after a module is played. The values are added and when then total a selected number the program ends.
+same => n(randgen),NoOp();starts the randgen function
+same => n,Set(select=9) ;initates the select value, this had future plans but does nothing right now
+same => n,Set(totalcheck=$[${check1} + ${check2} + ${check3}) ;This is used later, when the total reaches select the program ends
+;same => n,Set(totalcheck=$[${check1} + ${check2} + ${check3} + ${check4} +${check5}]) ;this would have been for all 5 modules
+same => n,ExecIf($[${totalcheck}= 6]?GoTo(top);set value as needed
+;same => n,SayNumber(${select}) ;for debugging
+same => n,While($[${select} = 9]);the select value is only used to start this loop, you can build more function here but for now this is a useless bit of code
+same => n,Set(z=${RAND(1,3)});change to 5 if needed
+same => n,Set(select=${z}) ;this starts the selected module
+same => n,GoToIf($[${select} = 1]?play1)
+same => n,GoToIf($[${select} = 2]?play2)
+same => n,GoToIf($[${select} = 3]?play3)
+;same => n,GoToIf($[${select} = 4]?play4);uncomment as needed
+;same => n,GoToIf($[${select} = 5]?play5)
+;same => n,Set(totalcheck=$[${check1} + ${check2} + ${check3} + ${check4} +${check5}])
+;same => n,ExecIf($[${totalcheck}= 15]?GoTo(top);make it a goto
+same => n,EndWhile
+same => n(play1),NoOp();module 1
+same => n,GoToIf($[${check1} = 1]?randgen);returns to the randomgen function if this has already been played
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred1)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred2)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred3)
+same => n,Wait(10)
+same => n,Playback(Fred/Mod1/fred4)
+same => n,Set(c1=${RAND(1,9)}) ;These bits of code play random files from a pool of sounds, the goal was to make the module sound unique each time
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Combo1/fred${c1}
+same => n,Set(c2=${RAND(1,10)})
+same => n,Playback(Fred/Combo2/fred${c2}
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred5)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred6)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred7)
+same => n,Playback(Fred/Mod1/fred8)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Set(r1=${RAND(1,11)})
+same => n,Playback(Fred/Confused/fred${r1})
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred9)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Set(r1=${RAND(1,11)})
+same => n,Playback(Fred/Confused/fred${r1})
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred10)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred11)
+same => n,Playback(Fred/Mod1/fred12)
+;same => n,Set(i=5) ;junk code
+;same => n,While($[${i} < 15])
+;same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+;same => n,Playback(Fred/Mod1/fred${i})
+;same => n,Set(i=$[${i} + 1])
+;same => n,EndWhile ;15
+same => n,Set(check1=1)
+same => n,GoTo(randgen);mod1 over return to randomgen
+same => n(play2),NoOp();mod2 start
+same => n,GoToIf($[${check2} = 2]?randgen
+)
+;same => n,SayNumber(2)
+same => n,Set(c1=${RAND(1,9)})
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Combo1/fred${c1}
+same => n,Set(c2=${RAND(1,10)})
+same => n,Playback(Fred/Combo2/fred${c2}
+same => n,Playback(Fred/Mod2/fred1)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Set(r1=${RAND(1,11)})
+same => n,Playback(Fred/Confused/fred${r1})
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred2)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Set(r1=${RAND(1,11)})
+same => n,Playback(Fred/Confused/fred${r1})
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred3)
+same => n,Playback(Fred/Mod2/fred4)
+same => n,Playback(Fred/Mod2/fred5)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Combo1/fred${c1}
+same => n,Set(c2=${RAND(1,10)})
+same => n,Playback(Fred/Combo2/fred${c2}
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred6)
+same => n,Playback(Fred/Mod2/fred7)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Set(r2=${RAND(1,22)})
+same => n,Playback(Fred/Filler/fred${r2})
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred8)
+same => n,Playback(Fred/Mod2/fred9)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred10)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred11)
+same => n,Playback(Fred/Mod2/fred12)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred13)
+same => n,Playback(Fred/Mod2/fred14)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred15)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod2/fred16)
+same => n,Playback(Fred/Mod2/fred17)
+same => n,Set(check2=2)
+same => n,GoTo(randgen);end mod2
+same => n(play3),NoOp()
+same => n,GoToIf($[${check3} = 3]?randgen);start mod3
+;same => n,SayNumber(3)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod3/fred10)
+same => n,Playback(Fred/Mod3/fred11)
+same => n,Playback(Fred/Mod3/fred12)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod3/fred13)
+same => n,Playback(Fred/Mod3/fred14)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod3/fred15)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod3/fred16)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod3/fred17)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod3/fred18)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod3/fred19)
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod3/fred20)
+same => n,Playback(Fred/Mod3/fred21)
+;same => n,Playback(Fred/Mod3/fred22)
+same => n,Set(check3=3)
+same => n,GoTo(randgen);mod3 end
+
+;--
+;the code for module 4
+same => n(play4),NoOp() ;starts mod4
+same => n,GoToIf($[${check4} = 4]?randgen) ;returns if already played;
+same => n,SayNumber(4) ;for debugging
+same => n,Set(check4=4) ;sets check = to a value 
+same => n,GoTo(randgen) ; returns to randgen
+;the code for module 5
+same => n(play5),NoOp()
+same => n,GoToIf($[${check5} = 5]?randgen)
+same => n,SayNumber(5)
+same => n,Set(check5=5)
+same => n,GoTo(randgen);end mod1
+--;
+
+;debug code
+;same => n,SayNumber(${j}) testing
+;same => n,Set(ARRAY(check1,check2,check3,check4,check5)=0,10,0,4,0)
+;same => n,Set(totalcheck=$[${check1} + ${check2} + ${check3} + ${check4} +${check5}])
+;same => n(label1),ExecIf($[${i}=1]?SayAlpha(hello));
+;same => n,SayNumber(${totalcheck})
+;same => n(label2),SayNumber(${RAND(1,20)})
+;same => n,GotoIf($[${i} = 2]?label1:label2)
+;same => n,
+
+;--
+;alpha code
+same => n,Playback(Fred/Greeting1/fred${greetone})
+same => n,Playback(Fred/Greeting1/fred${greettwo})
+same => n,Playback(Fred/Greeting1/fred${greetthree})
+same => n,While($[${i} < 4])
+same => n,Set(i=$[${i} + 1])
+same => n,EndWhile
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred${i}) ;4
+same => n,Set(i=$[${i} + 1])
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred${i}) ;5
+same => n,Set(i=$[${i} + 1])
+same => n,Wait(30)
+same => n,While($[${i} < 8]) ;6
+same => n,Playback(Fred/Mod1/fred${i})
+same => n,Set(i=$[${i} + 1])
+same => n,EndWhile ;8
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred${i})  ;8
+same => n,Set(i=$[${i} + 1])
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,Playback(Fred/Mod1/fred${i})  ;9
+same => n,Set(i=$[${i} + 1])
+same => n,While($[${i} < 13])
+same => n,Playback(Fred/Mod1/fred${i})
+same => n,Set(i=$[${i} + 1])
+same => n,EndWhile ;13
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,While($[${i} < 15])
+same => n,Playback(Fred/Mod1/fred${i})
+same => n,Set(i=$[${i} + 1])
+same => n,EndWhile ;15
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,While($[${i} < 20])
+same => n,Playback(Fred/Mod1/fred${i})
+same => n,Set(i=$[${i} + 1])
+same => n,BackgroundDetect(Fred/backgroundnoise,1500)
+same => n,EndWhile ;
+same => n,While($[${i} < 23])
+same => n,Playback(Fred/Mod1/fred${i})
+same => n,Set(i=$[${i} + 1])
+same => n,EndWhile ;
+--;

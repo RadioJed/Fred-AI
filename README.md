@@ -1,4 +1,4 @@
-# Fred
+# Fred-AI
 The goal of this project was to create a more complex version of the lenny program with 5 dialog paths and randomized envisioned.
  Only 3 paths are working but the scaffolding for 4 and 5 exsisted in the code and could easily be finished.
 
